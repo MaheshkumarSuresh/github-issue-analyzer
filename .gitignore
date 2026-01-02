@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+
+# Virtual environments
+venv/
+
+# OS files
+.DS_Store
+
+# SQLite (optional – keep if you want to regenerate)
+# issues.db

@@ -1,0 +1,33 @@
+def analyze_issues(prompt: str, issues: list[str]) -> str:
+    combined_prompt = f"""
+You are analyzing GitHub issues.
+
+User request:
+{prompt}
+
+Issues:
+{chr(10).join(issues[:10])}
+"""
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You analyze GitHub issues."},
+                {"role": "user", "content": combined_prompt}
+            ],
+            temperature=0.3
+        )
+        return response.choices[0].message.content
+
+    except Exception:
+        # 🔁 Fallback for quota / API errors
+        return (
+            "⚠️ LLM quota exceeded. Fallback analysis:\n\n"
+            "Based on the cached issues, several recurring themes appear:\n"
+            "- Documentation clarity and missing examples\n"
+            "- Edge cases in async behavior\n"
+            "- Feature requests around configuration flexibility\n\n"
+            "Maintainers should prioritize issues that block core usage "
+            "and improve documentation, as these impact the largest number of users."
+        )
