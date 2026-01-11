@@ -21,9 +21,9 @@ Issues:
         return response.choices[0].message.content
 
     except Exception:
-        # 🔁 Fallback for quota / API errors
+        # API Limit exceed error due to free version
         return (
-            "⚠️ LLM quota exceeded. Fallback analysis:\n\n"
+            " LLM quota exceeded. Fallback analysis:\n\n"
             "Based on the cached issues, several recurring themes appear:\n"
             "- Documentation clarity and missing examples\n"
             "- Edge cases in async behavior\n"
