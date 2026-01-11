@@ -112,3 +112,51 @@ def analyze_repo(payload: dict):
     return {
         "analysis": analysis
     }
+
+# ------------------------
+# POST /issues/list
+# ------------------------
+@app.post("/issues/list")
+def list_issues_detailed(payload: dict):
+    repo = payload.get("repo")
+
+    if not repo:
+        raise HTTPException(
+            status_code=400,
+            detail="repo is required"
+        )
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("""
+        SELECT id, title, body, html_url, created_at
+        FROM issues
+        WHERE repo = ?
+        ORDER BY created_at DESC
+    """, (repo,))
+
+    rows = cursor.fetchall()
+    conn.close()
+
+    if not rows:
+        raise HTTPException(
+            status_code=404,
+            detail="No cached issues found. Run /scan first."
+        )
+
+    issues = []
+    for row in rows:
+        issues.append({
+            "id": row[0],
+            "title": row[1],
+            "description": row[2],
+            "url": row[3],
+            "created_at": row[4]
+        })
+
+    return {
+        "repo": repo,
+        "total_issues": len(issues),
+        "issues": issues
+    }
