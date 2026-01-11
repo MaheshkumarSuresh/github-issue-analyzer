@@ -64,7 +64,8 @@ pip install -r requirements.txt
 Create a `.env` file in the project root:
 
 ```env
-OPENAI_API_KEY=your_openai_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here (optional)
+GROQ_API_KEY=your_grooq_api_key_here
 GITHUB_TOKEN=your_github_token_here
 ```
 
