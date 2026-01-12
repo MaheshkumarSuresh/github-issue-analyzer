@@ -1,6 +1,7 @@
 import httpx
 import os
 from dotenv import load_dotenv
+from datetime import datetime
 
 load_dotenv()
 
@@ -10,7 +11,7 @@ GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
 async def fetch_open_issues(repo: str):
     owner, name = repo.split("/")
     issues = []
-    page = 1
+    since = None  # cursor
 
     headers = {
         "Accept": "application/vnd.github+json"
@@ -21,10 +22,18 @@ async def fetch_open_issues(repo: str):
 
     async with httpx.AsyncClient() as client:
         while True:
+            params = {
+                "state": "open",
+                "per_page": 100
+            }
+
+            if since:
+                params["since"] = since
+
             response = await client.get(
                 f"{GITHUB_API}/repos/{owner}/{name}/issues",
-                params={"state": "open", "per_page": 100, "page": page},
-                headers=headers
+                headers=headers,
+                params=params
             )
 
             if response.status_code != 200:
@@ -34,10 +43,11 @@ async def fetch_open_issues(repo: str):
             if not data:
                 break
 
-            for issue in data:
-                if "pull_request" not in issue:
-                    issues.append(issue)
+            # Filter out pull requests
+            page_issues = [i for i in data if "pull_request" not in i]
+            issues.extend(page_issues)
 
-            page += 1
+            # Cursor = last issue updated time
+            since = data[-1]["updated_at"]
 
     return issues
